@@ -66,5 +66,6 @@ store:.
 <a href="https://www.linkedin.com/in/dhananjay-sharma-5615312b6/" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" height="30" width="40" /></a>
 </p>
 <p align="left">
-<a href="https://dhananjay-rajasthan-portfolio.netlify.app/" target="blank"><img align="center" src="[https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/instagram.svg](https://www.flaticon.com/free-icon/internet_2721688?term=website&page=1&position=5&origin=search&related_id=2721688)" height="30" width="40" /></a>
+<a href="https://dhananjay-rajasthan-portfolio.netlify.app/" target="blank"><img align="center" src="https://www.flaticon.com/free-icon/man_2903433?term=about+me&page=1&position=30&origin=search&related_id=2903433" height="30" width="40" /></a>
 </p>
+
