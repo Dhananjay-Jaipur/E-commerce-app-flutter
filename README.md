@@ -2,15 +2,69 @@
 
 A e-com Flutter project.
 
-## Getting Started
+## Dependencies
 
-This project is a starting point for a Flutter application.
+* [firebase_core](https://pub.dev/packages/firebase_core)
+* [cloud_firestore](https://pub.dev/packages/cloud_firestore)
+* [firebase_storage](https://pub.dev/packages/firebase_storage)
+* [internet_connection_checker](https://pub.dev/packages/internet_connection_checker)
+* [firebase_auth](https://pub.dev/packages/firebase_auth)
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Directory Structure
+  
+```
+store:.
+│   firebase_options.dart
+│   main.dart
+│
+├───components
+│       dilogue.dart
+│       drawer.dart
+│       loading.dart
+│       snakbar.dart
+│       tiles.dart
+│
+├───models
+│       imagePaths.dart
+│       user.dart
+│
+├───pages
+│   │   cart.dart
+│   │   checkout.dart
+│   │   displayProduct.dart
+│   │   home.dart
+│   │   my address.dart
+│   │   productPage.dart
+│   │   profile.dart
+│   │   profileSetting.dart
+│   │   search.dart
+│   │   shop.dart
+│   │
+│   └───loginPages
+│       │   backend.dart
+│       │   forget_pass.dart
+│       │   keepLogin.dart
+│       │   login.dart
+│       │   signup.dart
+│       │
+│       └───authentication
+│               authentication.dart
+│
+└───utils
+    │   globalKeys.dart
+    │   validator.dart
+    │
+    └───themes
+            dark_mode.dart
+            light_mode.dart
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
+## Connect with me
+<p align="left">
+<a href="https://www.linkedin.com/in/dhananjay-sharma-5615312b6/" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" height="30" width="40" /></a>
+</p>
+<p align="left">
+<a href="https://dhananjay-rajasthan-portfolio.netlify.app/" target="blank"><img align="center" src="[https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/instagram.svg](https://www.flaticon.com/free-icon/internet_2721688?term=website&page=1&position=5&origin=search&related_id=2721688)" height="30" width="40" /></a>
+</p>
