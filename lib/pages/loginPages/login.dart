@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:store/components/animations.dart';
 import 'package:store/components/loading.dart';
 import 'package:store/components/snakbar.dart';
 import 'package:store/models/user.dart';
@@ -29,39 +30,38 @@ class _LoginState extends State<Login> {
   var _obscureText = true;
 
   void LoginBackend() async{
-    Loading();
 
-    final user = await BackEnd.instace.LoginUserWithEmail(controller.email.text, controller.pass.text);
+    final User = await BackEnd.instace.LoginUserWithEmail(controller.email.text, controller.pass.text);
 
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+    if(User.isNullOrBlank != true)
+      {
+        FutureBuilder(
+            future: FirebaseFirestore.instance.collection("Users").where("email", isEqualTo: User!.email.toString()).get(),
 
-    final snapshot = await FirebaseFirestore.instance.collection("/Users/${uid}").where('email', isEqualTo: controller.email.text).snapshots();
+            builder: (context, AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+              if(snapshot.hasData){
+                user.Username =  snapshot.data!.docs![0]['Username']!;
+                user.email =  snapshot.data!.docs![0]['email']!;
+                user.password =  snapshot.data!.docs![0]['password']!;
+                user.phone_number =  snapshot.data!.docs![0]['phone_number']!;
+                user.profile_picture =  snapshot.data!.docs![0]['profile_picture']!;
 
-    if(user == null){
-      myDilogue(title: "user not found 🧐", context: context);
-      print("user not found 🧐");
-    }
+                LoginAnimatiom();
+              }
+
+              print("${snapshot.stackTrace}stack trace");
+              print("${snapshot.error}error");
+              return const Text("Something went 🧐 wrong");
+            }
+        );
+      }
 
     else{
-      // add USER:::
-      addData(snapshot);
-
-      mySnakbar('welcome back 😉👍');
-      print("congratulation 👍");
-      Get.offAll(() => Home(i: 0));
+      myDilogue(title: "user not 🧐 found", context: context);
     }
+
   }
 
-  void addData(userdata)
-  {
-    setState(() {
-      user.Username = userdata["Username"];
-      user.email = userdata["email"];
-      user.phone_number = userdata["phone_number"];
-      user.password = userdata["password"];
-      user.profile_picture = userdata["profile_picture"];
-    });
-  }
 
   void ChangeText(){
     setState(() {
@@ -144,7 +144,7 @@ class _LoginState extends State<Login> {
 
                        decoration: InputDecoration(
                          prefixIcon: const Icon(Icons.email_outlined),
-                         hintText: "username or e-mail",
+                         hintText: "e-mail",
                          border: const OutlineInputBorder(
                              borderRadius: BorderRadius.all(Radius.circular(15)),
                          ),
@@ -241,7 +241,7 @@ class _LoginState extends State<Login> {
                         height: 70,
                         child: IconButton(
                           onPressed: (){
-                            BackEnd().SigninWithGoogle();
+                            myDilogue(title: "this will work 😅 in future", context: context);
                           },
                           icon: Image.asset("assets/icon/google.png"),
                         ),
@@ -251,7 +251,11 @@ class _LoginState extends State<Login> {
 
                       SizedBox(
                           height: 70,
-                          child: IconButton(onPressed: (){}, icon: Image.asset("assets/icon/communication.png"),)
+                          child: IconButton(
+                            onPressed: (){
+                            myDilogue(title: "this will work 😅 in future", context: context);
+                          },
+                            icon: Image.asset("assets/icon/apple.png"),)
                       ),
                     ],
                   ),

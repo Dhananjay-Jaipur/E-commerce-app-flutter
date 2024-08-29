@@ -5,16 +5,32 @@ import 'package:store/models/user.dart';
 import 'package:store/pages/home.dart';
 import 'package:store/pages/loginPages/backend.dart';
 import 'package:store/pages/my%20address.dart';
+import 'package:store/pages/my%20orders.dart';
 import 'package:store/pages/profileSetting.dart';
+import 'package:store/pages/search.dart';
 import 'package:store/pages/shop.dart';
 import 'package:store/models/imagePaths.dart';
 
-class Profile extends StatelessWidget {
+import 'my notifications.dart';
+import 'my payment.dart';
+
+class Profile extends StatefulWidget {
   const Profile({super.key});
 
+  @override
+  State<Profile> createState() => _ProfileState();
+}
+
+class _ProfileState extends State<Profile> {
   void Logout() async{
     await BackEnd.instace.SignoutUser();
     Get.to(() => Home(i: 0));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {});
   }
 
   @override
@@ -46,7 +62,7 @@ class Profile extends StatelessWidget {
                     ),
                   ),
                 ),
-                
+
                 Positioned(
                   bottom: MediaQuery.of(context).size.width / 20,
                   left: 0,
@@ -75,14 +91,24 @@ class Profile extends StatelessWidget {
             child: Center(child: Text("${user.Username}", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSecondary))),
           ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 30)),
-
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.all(MediaQuery.of(context).size.width / 15,),
               child: Column(
                 children: [
+
                   InkWell(
+                    onTap: () {
+                      setState(() {});
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => MyNotifications(),
+                        backgroundColor:
+                        Theme.of(context).colorScheme.surfaceContainer,
+                        isScrollControlled: true,
+                      );
+                    },
+
                     child: Container(
                       color: Theme.of(context).colorScheme.shadow,
                       margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.width / 60),
@@ -99,16 +125,53 @@ class Profile extends StatelessWidget {
                               color: Theme.of(context).colorScheme.onPrimary,
                             ),
                           ),
+                          Icon(Icons.arrow_forward_ios_rounded),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  InkWell(
+                    onTap: (){
+                      Get.to(() => Search());
+                    },
+
+                    child: Container(
+                      color: Theme.of(context).colorScheme.shadow,
+                      margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.width / 60),
+                      padding: EdgeInsets.all(MediaQuery.of(context).size.width / 50),
+                      height: MediaQuery.of(context).size.height / 20,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "🖤  favourite",
+                            style: TextStyle(
+                              fontSize: MediaQuery.of(context).size.height / 43,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          ),
 
                           Icon(Icons.arrow_forward_ios_rounded),
                         ],
                       ),
                     ),
 
-                    onTap: (){},
                   ),
 
                   InkWell(
+                    onTap: () {
+                      setState(() {});
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => MyPayments(),
+                        backgroundColor:
+                        Theme.of(context).colorScheme.surfaceContainer,
+                        isScrollControlled: true,
+                      );
+                    },
+
                     child: Container(
                       color: Theme.of(context).colorScheme.shadow,
                       margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.width / 60),
@@ -130,37 +193,20 @@ class Profile extends StatelessWidget {
                         ],
                       ),
                     ),
-
-                    onTap: (){},
                   ),
 
                   InkWell(
-                    child: Container(
-                      color: Theme.of(context).colorScheme.shadow,
-                      margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.width / 60),
-                      padding: EdgeInsets.all(MediaQuery.of(context).size.width / 50),
-                      height: MediaQuery.of(context).size.height / 20,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "📦  my orders",
-                            style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.height / 43,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ),
-                          ),
+                    onTap: () {
+                      setState(() {});
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => MyOrders(),
+                        backgroundColor:
+                        Theme.of(context).colorScheme.surfaceContainer,
+                        isScrollControlled: true,
+                      );
+                    },
 
-                          Icon(Icons.arrow_forward_ios_rounded),
-                        ],
-                      ),
-                    ),
-
-                    onTap: (){},
-                  ),
-
-                  InkWell(
                     child: Container(
                       color: Theme.of(context).colorScheme.shadow,
                       margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.width / 60),
@@ -182,37 +228,19 @@ class Profile extends StatelessWidget {
                         ],
                       ),
                     ),
-
-                    onTap: (){},
                   ),
 
                   InkWell(
-                    child: Container(
-                      color: Theme.of(context).colorScheme.shadow,
-                      margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.width / 60),
-                      padding: EdgeInsets.all(MediaQuery.of(context).size.width / 50),
-                      height: MediaQuery.of(context).size.height / 20,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "🚛  my returns",
-                            style: TextStyle(
-                              fontSize: MediaQuery.of(context).size.width / 20,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ),
-                          ),
-
-                          Icon(Icons.arrow_forward_ios_rounded),
-                        ],
-                      ),
-                    ),
-
-                    onTap: (){},
-                  ),
-
-                  InkWell(
+                    onTap: () {
+                      setState(() {});
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => MyAddress(),
+                        backgroundColor:
+                        Theme.of(context).colorScheme.surfaceContainer,
+                        isScrollControlled: true,
+                      );
+                    },
                     child: Container(
                       color: Theme.of(context).colorScheme.shadow,
                       margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.width / 60),
@@ -234,9 +262,43 @@ class Profile extends StatelessWidget {
                         ],
                       ),
                     ),
-
-                    onTap: (){Navigator.push(context, MaterialPageRoute(builder: (context) => MyAddress()));},
                   ),
+
+                  InkWell(
+                    onTap: () {
+                      setState(() {});
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (context) => MyOrders(),
+                        backgroundColor:
+                        Theme.of(context).colorScheme.surfaceContainer,
+                        isScrollControlled: true,
+                      );
+                    },
+
+                    child: Container(
+                      color: Theme.of(context).colorScheme.shadow,
+                      margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.width / 60),
+                      padding: EdgeInsets.all(MediaQuery.of(context).size.width / 50),
+                      height: MediaQuery.of(context).size.height / 20,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "🚛  my returns",
+                            style: TextStyle(
+                              fontSize: MediaQuery.of(context).size.width / 20,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          ),
+
+                          Icon(Icons.arrow_forward_ios_rounded),
+                        ],
+                      ),
+                    ),
+                  ),
+
                 ],
               ),
             ),

@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:store/components/animations.dart';
 import 'package:store/components/dilogue.dart';
 import 'package:store/components/loading.dart';
+import 'package:store/models/user.dart';
 import 'package:store/pages/loginPages/backend.dart';
 import 'package:store/models/imagePaths.dart';
 import 'package:store/utils/validator.dart';
@@ -27,12 +29,41 @@ class _SignupState extends State<Signup> {
 
   final cpass = TextEditingController();
 
-  UploadTask? uploadTask;
-  File? image;
+  String? image_link;
 
   var _obscureText = true;
 
   var checkedValue = false;
+
+
+  Future<String?> uploadPic() async {
+
+    final ImagePicker _picker = ImagePicker();
+    File? _photo;
+
+    //Get the file from the image picker and store it
+    final image = await _picker.pickImage(source: ImageSource.gallery);
+    _photo = File(image!.path);
+
+    if (_photo.isNull) print('image not found');
+
+    String? location;
+
+    try {
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child('profile_picture/');
+      await ref.putFile(_photo);
+
+      location = await ref.getDownloadURL();
+
+    } catch (e) {
+      print('error occured: ${e.toString()}');
+    }
+
+    //returns the download url
+    return location;
+  }
 
   void ChangeBox(){
     setState(() {
@@ -49,25 +80,25 @@ class _SignupState extends State<Signup> {
   void SignupBackend() async{
     Loading();
 
-    final user = await BackEnd.instace.CreateUserWithEmail(controller.email.text, cpass.text);
+    final User = await BackEnd.instace.CreateUserWithEmail(controller.email.text, cpass.text);
 
-    if(user == null){
-      print("something went wrong 🧐");
-    }
-    else{
+    await BackEnd.instace.AddUser(controller.first_name.text, controller.last_name.text, controller.email.text, cpass.text, controller.phone.text, image_link);
+
+    if(User.isNullOrBlank != true){
+      user.Username = '${controller.first_name.text} ${controller.last_name.text}';
+      user.email = controller.email.text.toString();
+      user.password = controller.pass.text.toString();
+      user.phone_number = controller.phone.text.toString();
+      user.profile_picture = image_link.toString();
+
+
       print("congratulation 👍");
-      Get.to(() => Home(i: 0));
+      Get.to(() => LoginAnimatiom());
     }
+
+    myDilogue(title: "something went wrong 🧐", context: context);
   }
 
-  Future UploadFile() async{
-
-    //Create a reference to the location you want to upload to in firebase
-    final reference = FirebaseStorage.instance.ref().child("profile_picture/${Imagepaths.user_image}");
-
-    //Upload the file to firebase
-    reference.putFile(Imagepaths.user_image!);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,21 +134,21 @@ class _SignupState extends State<Signup> {
 
                           InkWell(
                             onTap: () async{
-                              final picture = await ImagePicker().pickImage(source: ImageSource.gallery);
-
                               setState(() {
-                                Imagepaths.user_image = File(picture!.path);
-                                UploadFile();
+                                image_link = uploadPic() as String;
+                                controller.profile_picture = image_link!;
                               });
                             },
 
-                            child: Imagepaths.user_image.isNull ? CircleAvatar(
-                              radius: MediaQuery.of(context).size.height / 13,
-                              child: Icon(Icons.camera_alt_rounded),
-                            ) : CircleAvatar(
-                              radius: MediaQuery.of(context).size.height / 13,
-                              child: Image.file(Imagepaths.user_image!),
-                            ),
+                            child: image_link == null ?
+                                  CircleAvatar(
+                                    radius: MediaQuery.of(context).size.height / 13,
+                                    child: Icon(Icons.camera_alt_rounded),
+                                  )
+                                : CircleAvatar(
+                                    radius: MediaQuery.of(context).size.height / 13,
+                                    child: Image.network('${image_link}'),
+                                  ),
 
                           ),
 
@@ -210,6 +241,7 @@ class _SignupState extends State<Signup> {
 
                       style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
                       cursorColor: Theme.of(context).colorScheme.onPrimary,
+                      keyboardType: TextInputType.phone,
 
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.phone),
@@ -316,12 +348,7 @@ class _SignupState extends State<Signup> {
                             }
                           else
                           {
-                            showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(content: Text("*please agree to terms & condition", style: TextStyle( color: Theme.of(context).colorScheme.onPrimary),),);
-                                }
-                            );
+                            myDilogue(title: "*please agree to terms & condition 🙄", context: context);
                           }
                         },
                         child: Text('create account', style: TextStyle(color: Theme.of(context).colorScheme.onSecondary, fontWeight: FontWeight.bold),),
@@ -353,14 +380,19 @@ class _SignupState extends State<Signup> {
                   children: [
                     SizedBox(
                       height: 70,
-                      child: IconButton(onPressed: (){}, icon: Image.asset("assets/icon/google.png"),),
+                      child: IconButton(onPressed: (){
+                        myDilogue(title: "this will work 😅 in future", context: context);
+                      },
+                        icon: Image.asset("assets/icon/google.png"),),
                     ),
 
                     const SizedBox(width: 5,),
 
                     SizedBox(
                         height: 70,
-                        child: IconButton(onPressed: (){}, icon: Image.asset("assets/icon/communication.png"),)
+                        child: IconButton(onPressed: (){
+                          myDilogue(title: "this will work 😅 in future", context: context);
+                        }, icon: Image.asset("assets/icon/apple.png"),)
                     ),
                   ],
                 ),

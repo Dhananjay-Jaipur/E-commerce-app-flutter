@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:store/components/snakbar.dart';
 import 'package:store/models/imagePaths.dart';
 import 'dart:async';
@@ -21,18 +25,62 @@ class BackEnd extends GetxController{
   final last_name = TextEditingController();
   final pass = TextEditingController();
   final phone = TextEditingController();
+  String? profile_picture;
 
   final auth = FirebaseAuth.instance;
+
+  final ImagePicker _picker = ImagePicker();
+  File? _photo;
+  Future<String?> uploadPic() async {
+
+    //Get the file from the image picker and store it
+    final image = await _picker.pickImage(source: ImageSource.gallery);
+    _photo = File(image!.path);
+
+    if (_photo == null) print('image not found');
+
+    String? location;
+
+    try {
+      final ref = FirebaseStorage.instance
+          .ref()
+          .child('profile_picture/');
+      await ref.putFile(_photo!);
+
+      location = await ref.getDownloadURL();
+
+    } catch (e) {
+      print('error occured: ${e.toString()}');
+    }
+
+    //returns the download url
+    return location;
+  }
+
+  Future<bool?> AddUser(first_name, last_name, email, pass, phone, profile_picture) async{
+    try{
+      await FirebaseFirestore.instance.collection("Users").doc(email.toString()).set({
+        'Username': '$first_name $last_name',
+        'email': email,
+        'password': pass,
+        'phone_number': phone,
+        'profile_picture': profile_picture,
+      });
+      return true;
+    } on FirebaseAuthException catch (e){
+      print(e.message.toString());
+    }catch(e){
+      throw "something went wrong";
+    }
+  }
 
 
   Future<User?> CreateUserWithEmail(String email, String pass) async{
     try{
 
-      Loading();
+      await Loading();
 
       final user_credential = await auth.createUserWithEmailAndPassword(email: email, password: pass);
-
-      addUser(first_name.text, last_name.text, email.trim(), pass, phone.text);
 
       return user_credential.user;
 
@@ -85,23 +133,6 @@ class BackEnd extends GetxController{
       await auth.signOut();
     } catch (e){
       print(e.toString());
-    }
-  }
-
-
-  //SAVING DATA INTO JSON FORMAT to firebase::::::
-  Future addUser(first_name, last_name, email, pass, phone) async{
-    try{
-      await FirebaseFirestore.instance.collection("Users").add({
-        'Username': '$first_name $last_name',
-        'email': email,
-        'password': pass,
-        'phone_number': phone,
-      });
-    } on FirebaseAuthException catch (e){
-       print(e.message.toString());
-    }catch(e){
-      throw "something went wrong";
     }
   }
 

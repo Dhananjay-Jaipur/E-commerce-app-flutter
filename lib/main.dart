@@ -48,9 +48,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
         title: 'website',
-        themeMode: ThemeMode.system,
         theme: lightMode,
-        darkTheme: darkMode,
+        // darkTheme: darkMode,
         home: Loading(),
     );
   }

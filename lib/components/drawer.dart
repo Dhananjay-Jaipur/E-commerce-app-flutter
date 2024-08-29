@@ -72,22 +72,6 @@ class myDrawer extends StatelessWidget {
             ),
 
             ListTile(
-              leading: Icon(Icons.notifications_active_outlined, size: 32, color: Theme.of(context).colorScheme.error,),
-              title: Text(' notifications', style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.error),),
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => Home(i: 0)));
-              },
-            ),
-
-            ListTile(
-              leading: Icon(CupertinoIcons.building_2_fill, size: 32, color: Theme.of(context).colorScheme.error,),
-              title: Text(' my addresses', style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.error),),
-              onTap: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) => MyAddress()));
-              },
-            ),
-
-            ListTile(
               leading: Icon(Icons.payment, size: 32, color: Theme.of(context).colorScheme.error,),
               title: Text(' payment', style: TextStyle(fontSize: 20, color: Theme.of(context).colorScheme.error),),
               onTap: (){
