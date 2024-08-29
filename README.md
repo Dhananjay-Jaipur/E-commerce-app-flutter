@@ -4,11 +4,26 @@ A e-com Flutter project.
 
 ## Dependencies
 
+# testing:
+* [device_preview](https://pub.dev/packages)
+  
+# utils:
+* [flutter_native_splash](https://pub.dev/packages)
+* [smooth_page_indicator](https://pub.dev/packages)
+* [google_nav_bar](https://pub.dev/packages)
+* [lottie](https://pub.dev/packages)
+# state-management:
+* [get](https://pub.dev/packages)
+* [get_storage](https://pub.dev/packages)
+# back-end:
 * [firebase_core](https://pub.dev/packages/firebase_core)
 * [cloud_firestore](https://pub.dev/packages/cloud_firestore)
 * [firebase_storage](https://pub.dev/packages/firebase_storage)
 * [internet_connection_checker](https://pub.dev/packages/internet_connection_checker)
 * [firebase_auth](https://pub.dev/packages/firebase_auth)
+* [  google_sign_in](https://pub.dev/packages)
+
+
 
 
 ## Directory Structure
