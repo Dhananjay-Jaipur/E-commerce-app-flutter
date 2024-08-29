@@ -34,12 +34,12 @@ dependencies:
   # =================package=======================
   # icons:
   cupertino_icons: ^1.0.6
+  # testing:
   device_preview: ^1.2.0
   # utils:
   flutter_native_splash: ^2.4.1
   smooth_page_indicator: ^1.2.0+3
   google_nav_bar: ^5.0.6
-  persistent_bottom_nav_bar: ^6.2.1
   lottie: ^3.1.2
   # state-management:
   get: ^4.6.6
