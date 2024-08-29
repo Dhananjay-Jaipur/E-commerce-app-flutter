@@ -31,7 +31,6 @@ class HomeState extends State<Home> {
   void Toggle(int index){
     setState(() {
       currentIndex = index;
-      print(index);
     });
   }
 

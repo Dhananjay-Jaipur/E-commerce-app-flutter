@@ -1,18 +1,72 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:store/pages/cart.dart';
 import 'package:store/pages/home.dart';
 
+import '../components/loading.dart';
 import '../models/imagePaths.dart';
 
-class ProductPage extends StatelessWidget {
-  ProductPage({super.key});
+class ProductPage extends StatefulWidget {
+
+  final AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot;
+
+  final index;
+
+  ProductPage({super.key, required this.snapshot, required this.index});
+
+  @override
+  State<ProductPage> createState() => _ProductPageState();
+}
+
+class _ProductPageState extends State<ProductPage> {
+
+  var size = [false, false, false, false, false];
+
+  late bool favourite;
+
+  @override
+  void initState() {
+    favourite = widget.snapshot.data!.docs[widget.index]['fav'];
+    super.initState();
+  }
+
+  void ChangeSize(String s, int i) async{
+    size = [false, false, false, false, false];
+    setState(() {
+      size[i] = true;
+    });
+    await FirebaseFirestore.instance.collection("products").doc(
+        widget.snapshot.data!.docs[widget.index].id).update({"size": s});
+  }
+
+
+  int quantity = 1;
+
+  int Total(snapshot){
+    int total = 0;
+    int? p = 0;
+
+    for(int i=0; i<snapshot.data!.docs.length!; i++)
+    {
+      p = (snapshot.data!.docs[i]['quantity']) * int.parse(snapshot.data!.docs[i]['price']);
+      total = total + p!;
+    }
+    return total;
+  }
+
 
   PageController scrollController = PageController();
 
   @override
   Widget build(BuildContext context) {
+
+    if (widget.snapshot.connectionState == ConnectionState.waiting) {
+      return Loading();
+    }
+
     return Container(
       height: MediaQuery.of(context).size.height * .8,
       child: Stack(
@@ -43,74 +97,32 @@ class ProductPage extends StatelessWidget {
                         controller: scrollController,
 
                         children: [
-                          Column(
-                            children: [
-                              Container(
-                                margin: const EdgeInsets.all(20),
-                                height: MediaQuery.of(context).size.height / 2.7,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(4),
-                                    image: const DecorationImage(
-                                      image: AssetImage(Imagepaths.Product1),
-                                      fit: BoxFit.fill,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color: Theme.of(context).colorScheme.shadow,
-                                          spreadRadius: 7
-                                      ), // no shadow color set, defaults to black
-                                    ]
+
+                          for(int i = 0; i < widget.snapshot.data!.docs[widget.index]['image_count']; i++)
+                            Column(
+                              children: [
+                                Container(
+                                  margin: const EdgeInsets.all(20),
+                                  height: MediaQuery.of(context).size.height / 2.7,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(4),
+                                      image: DecorationImage(
+                                        image: NetworkImage(widget.snapshot.data!.docs[widget.index]['images'][i]),
+                                        fit: BoxFit.cover,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: Theme.of(context).colorScheme.onSecondary,
+                                            spreadRadius: 7
+                                        ), // no shadow color set, defaults to black
+                                      ]
+                                  ),
+
                                 ),
+                              ],
+                            ),
 
-                              ),
-                            ],
-                          ),
-
-                          Column(
-                            children: [
-                              Container(
-                                margin: const EdgeInsets.all(20),
-                                height: MediaQuery.of(context).size.height / 2.7,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(4),
-                                    image: const DecorationImage(
-                                      image: AssetImage(Imagepaths.Product1),
-                                      fit: BoxFit.fill,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color: Theme.of(context).colorScheme.shadow,
-                                          spreadRadius: 7
-                                      ), // no shadow color set, defaults to black
-                                    ]
-                                ),
-
-                              ),
-                            ],
-                          ),
-
-                          Column(
-                            children: [
-                              Container(
-                                margin: const EdgeInsets.all(20),
-                                height: MediaQuery.of(context).size.height / 2.7,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(4),
-                                    image: const DecorationImage(
-                                      image: AssetImage(Imagepaths.Product1),
-                                      fit: BoxFit.fill,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color: Theme.of(context).colorScheme.shadow,
-                                          spreadRadius: 7
-                                      ), // no shadow color set, defaults to black
-                                    ]
-                                ),
-
-                              ),
-                            ],
-                          ),
                         ],
                       ),
 
@@ -118,7 +130,7 @@ class ProductPage extends StatelessWidget {
                         top: MediaQuery.of(context).size.height / 2.4,
                         child: SmoothPageIndicator(
                           controller: scrollController,
-                          count: 3,
+                          count: widget.snapshot.data!.docs[widget.index]['image_count'],
                           effect: ExpandingDotsEffect(
                             dotWidth: 8,
                             dotHeight: 8,
@@ -131,9 +143,36 @@ class ProductPage extends StatelessWidget {
                       Positioned(
                         top: 12,
                         right: 14,
-                        child: IconButton(
-                            onPressed: (){},
-                            icon: false ? Icon(Icons.favorite, color: Theme.of(context).colorScheme.onError,) : Icon(Icons.favorite_border_sharp, color: Theme.of(context).colorScheme.onError, size: 40,)
+                        child: (favourite) ?
+                        IconButton(
+                          onPressed: () async {
+                            await FirebaseFirestore.instance.collection(
+                                "products").doc(
+                                widget.snapshot.data!.docs[widget.index].id).update({
+                              "fav": false,
+                            });
+                            setState(() {
+                              favourite = false;
+                            });
+                          },
+                          icon: const Icon(
+                              Icons.favorite, color: Colors.redAccent,
+                              size: 40),
+                        )
+                            :IconButton(
+                          onPressed: () async {
+                            await FirebaseFirestore.instance.collection(
+                                "products").doc(
+                                widget.snapshot.data!.docs[widget.index].id).update({
+                              "fav": true,
+                            });
+                            setState(() {
+                              favourite = true;
+                            });
+                          },
+                          icon: const Icon(
+                              Icons.favorite_border_sharp, color: Colors.redAccent,
+                              size: 40),
                         ),
                       ),
 
@@ -147,7 +186,7 @@ class ProductPage extends StatelessWidget {
                             ),
 
                             Text(
-                              "products",
+                              widget.snapshot.data!.docs[widget.index]['name'],
                               style: TextStyle(
                                 fontSize: MediaQuery.of(context).size.height / 30,
                                 fontWeight: FontWeight.bold,
@@ -156,11 +195,11 @@ class ProductPage extends StatelessWidget {
                             ),
 
                             Text(
-                              "2000 ₹",
+                              '${widget.snapshot.data!.docs[widget.index]['price']!} ₹',
                               style: TextStyle(
-                                fontSize: MediaQuery.of(context).size.height / 50,
+                                fontSize: MediaQuery.of(context).size.height / 40,
                                 fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.onSecondary,
+                                color: Colors.green,
                               ),
                             ),
 
@@ -171,7 +210,7 @@ class ProductPage extends StatelessWidget {
                             SizedBox(
                               width: MediaQuery.of(context).size.width * 0.7,
                               child: Text(
-                                "discriptionbjhbtccvbkcxxhhvjcyxcjvjhtxycjvjchchjvj........................................................................................................................................................................................................",
+                                widget.snapshot.data!.docs[widget.index]['description'],
                                 style: TextStyle(
                                   fontSize: MediaQuery.of(context).size.height / 55,
                                   fontWeight: FontWeight.w400,
@@ -180,19 +219,9 @@ class ProductPage extends StatelessWidget {
                               ),
                             ),
 
-                            SizedBox(
-                              height: MediaQuery.of(context).size.width * 0.05,
-                            ),
-
-                            Wrap(
-                              spacing: 2,
-                              children: [
-
-                              ],
-                            ),
 
                             SizedBox(
-                              height: MediaQuery.of(context).size.width * 0.03,
+                              height: MediaQuery.of(context).size.width * 0.09,
                             ),
 
 
@@ -208,6 +237,7 @@ class ProductPage extends StatelessWidget {
                                   onSelected: (i){},
                                   selected: false,
                                 ),
+
                                 ChoiceChip(
                                   padding: EdgeInsets.all(10),
                                   label: Text("",),
@@ -217,6 +247,7 @@ class ProductPage extends StatelessWidget {
                                   onSelected: (i){},
                                   selected: false,
                                 ),
+
                                 ChoiceChip(
                                   padding: EdgeInsets.all(10),
                                   label: Text("",),
@@ -238,34 +269,42 @@ class ProductPage extends StatelessWidget {
                               children: [
                                 ChoiceChip(
                                   label: Text("S"),
-                                  selected: true,
+                                  selected: size[0],
                                   selectedColor: Colors.black54,
                                   backgroundColor: Colors.black26,
-                                  onSelected: (i){},
+                                  onSelected: (i) {
+                                    ChangeSize("S", 0);
+                                  },
                                   labelStyle: TextStyle(color: Colors.black),
                                 ),
                                 ChoiceChip(
                                   label: Text("M"),
-                                  selected: false,
+                                  selected: size[1],
                                   selectedColor: Colors.black54,
                                   backgroundColor: Colors.black26,
-                                  onSelected: (i){},
+                                  onSelected: (i) {
+                                    ChangeSize("M", 1);
+                                  },
                                   labelStyle: TextStyle(color: Colors.black),
                                 ),
                                 ChoiceChip(
                                   label: Text("L"),
-                                  selected: false,
+                                  selected: size[2],
                                   selectedColor: Colors.black54,
                                   backgroundColor: Colors.black26,
-                                  onSelected: (i){},
+                                  onSelected: (i) {
+                                    ChangeSize("L", 2);
+                                  },
                                   labelStyle: TextStyle(color: Colors.black),
                                 ),
                                 ChoiceChip(
                                   label: Text("XL"),
-                                  selected: false,
+                                  selected: size[3],
                                   selectedColor: Colors.black54,
                                   backgroundColor: Colors.black26,
-                                  onSelected: (i){},
+                                  onSelected: (i) {
+                                    ChangeSize('XL', 3);
+                                  },
                                   labelStyle: TextStyle(color: Colors.black),
                                 ),
                               ],
@@ -329,35 +368,66 @@ class ProductPage extends StatelessWidget {
                     ),
 
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-
-                        // Quantityselector
-
-                        SizedBox(
-                          child: IconButton(
-                            onPressed: (){},
-                            icon: Icon(Icons.add_circle_rounded, color: Theme.of(context).colorScheme.onSecondary,),
-                            iconSize: 30,
-                          ),
+                        IconButton(
+                          onPressed: () async {
+                            setState(() {
+                              quantity++;
+                            });
+                            await FirebaseFirestore.instance
+                                .collection("products").doc(
+                                widget.snapshot.data!.docs[widget.index].id).update(
+                                {"quantity": quantity});
+                          },
+                          icon: Icon(Icons.add_circle_rounded, color: Theme
+                              .of(context)
+                              .colorScheme
+                              .onPrimary,),
+                          iconSize: 30,
                         ),
 
                         Text(
-                          "1",
+                          "${quantity}",
                           style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.height / 40,
+                            fontSize:
+                            MediaQuery
+                                .of(context)
+                                .size
+                                .height /
+                                40,
                             fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onSecondary,
+                            color: Theme
+                                .of(context)
+                                .colorScheme
+                                .onPrimary,
                           ),
                         ),
 
-                        SizedBox(
-                          child: IconButton(
-                            onPressed: (){},
-                            icon: Icon(CupertinoIcons.minus_circle_fill, color: Theme.of(context).colorScheme.onSecondary,),
-                            iconSize: 30,
-                          ),
+                        (widget.snapshot.data!.docs[widget.index]['quantity'] > 1) ?
+                        IconButton(
+                          onPressed: () async {
+                            setState(() {
+                              quantity--;
+                            });
+                            await FirebaseFirestore.instance
+                                .collection("products").doc(
+                                widget.snapshot.data!.docs[widget.index].id).update(
+                                {"quantity": quantity});
+                          },
+                          icon: Icon(CupertinoIcons.minus_circle_fill, color: Theme
+                              .of(context)
+                              .colorScheme
+                              .onPrimary,),
+                          iconSize: 30,
+                        )
+                            : IconButton(
+                          onPressed: () {},
+                          icon: Icon(CupertinoIcons.minus_circle_fill, color: Theme
+                              .of(context)
+                              .colorScheme
+                              .onPrimary,),
+                          iconSize: 30,
                         ),
 
                       ],
@@ -367,14 +437,17 @@ class ProductPage extends StatelessWidget {
 
                     SizedBox(
                       height: MediaQuery.of(context).size.height * .06,
-                      width: MediaQuery.of(context).size.width * .4,
-                      child: ElevatedButton(
-                        onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Home(i: 1)));},
-                        style: TextButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.onSecondary),
+                      width: MediaQuery.of(context).size.width * .35,
+                      child: TextButton(
+                        onPressed: () async{
+                          await FirebaseFirestore.instance.collection("products").doc(widget.snapshot.data!.docs[widget.index].id).update({"cart": true});
+                          Get.to(() => Home(i: 1));
+                          },
+                        style: TextButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.onPrimary),
                         child: Text(
-                          "2000 ₹",
+                          "${Total(widget.snapshot)} ₹",
                           style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.height * 0.025,
+                            fontSize: MediaQuery.of(context).size.height * 0.022,
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.primary,
                           ),
@@ -383,7 +456,7 @@ class ProductPage extends StatelessWidget {
                     ),
 
                     SizedBox(
-                      width: 10,
+                      width: 20,
                     ),
                   ],
                 ),
